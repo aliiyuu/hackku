@@ -1,17 +1,38 @@
 "use client";
 
-import React, { useState, ChangeEvent, FormEvent } from "react";
+import React, { useState } from "react";
+import Select from "@/components/ClientSelect";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-// 1. Define the shape of the form data
+const medicalConditionsOptions = [
+  { value: "hypertension", label: "Hypertension (High blood pressure)" },
+  { value: "diabetes", label: "Diabetes (Type 1 or 2)" },
+  { value: "asthma", label: "Asthma" },
+  { value: "depression", label: "Depression" },
+  { value: "anxiety", label: "Anxiety Disorders" },
+  { value: "arthritis", label: "Arthritis" },
+  { value: "thyroid", label: "Thyroid Disorders" },
+  { value: "allergies", label: "Severe Allergies" },
+  { value: "hiv", label: "HIV/AIDS" },
+  { value: "none", label: "None" },
+  { value: "high-cholesterol", label: "High Cholesterol" },
+  { value: "epilepsy", label: "Epilepsy" },
+  { value: "cancer", label: "Cancer" },
+  { value: "obesity", label: "Obesity" },
+  { value: "osteoporosis", label: "Osteoporosis" },
+  { value: "hepatitis", label: "Hepatitis (Type B or C)" },
+  { value: "migraines", label: "Chronic Migraines" },
+  { value: "sleep-apnea", label: "Sleep Apnea" },
+];
+
 interface FormData {
   age: string;
   weight: string;
   height: string;
-  medicalConditions: string;
+  medicalConditions: { value: string; label: string }[];
   familyHistory: string;
   vaccinationFile: File | null;
 }
@@ -21,15 +42,14 @@ export default function SurveyForm() {
     age: "",
     weight: "",
     height: "",
-    medicalConditions: "",
+    medicalConditions: [],
     familyHistory: "",
     vaccinationFile: null,
   });
 
-  const [submittedData, setSubmittedData] = useState<Record<string, string> | null>(null);
+  const [submittedData, setSubmittedData] = useState<Record<string, any> | null>(null);
 
-  // 2. Handle input changes
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, files } = e.target as HTMLInputElement;
     if (name === "vaccinationFile" && files) {
       setFormData((prev) => ({ ...prev, vaccinationFile: files[0] }));
@@ -38,15 +58,15 @@ export default function SurveyForm() {
     }
   };
 
-  // 3. Handle form submission
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSelectChange = (selected: any) => {
+    setFormData((prev) => ({ ...prev, medicalConditions: selected }));
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const dataToSubmit: Record<string, string> = {
-      age: formData.age,
-      weight: formData.weight,
-      height: formData.height,
-      medicalConditions: formData.medicalConditions,
-      familyHistory: formData.familyHistory,
+    const dataToSubmit = {
+      ...formData,
+      medicalConditions: formData.medicalConditions.map((cond) => cond.label),
       vaccinationFile: formData.vaccinationFile?.name || "No file uploaded",
     };
     setSubmittedData(dataToSubmit);
@@ -79,15 +99,20 @@ export default function SurveyForm() {
               onChange={handleChange}
               required
             />
-            <Textarea
-              name="medicalConditions"
-              placeholder="List any existing medical conditions"
-              value={formData.medicalConditions}
-              onChange={handleChange}
-            />
+            <div>
+              <label className="block mb-1 font-medium">Existing Medical Conditions</label>
+              <Select
+                isMulti
+                name="medicalConditions"
+                options={medicalConditionsOptions}
+                value={formData.medicalConditions}
+                onChange={handleSelectChange}
+                className="text-sm"
+              />
+            </div>
             <Textarea
               name="familyHistory"
-              placeholder="Describe any relevant family medical history"
+              placeholder="Further specity conditions and describe any relevant family medical history"
               value={formData.familyHistory}
               onChange={handleChange}
             />

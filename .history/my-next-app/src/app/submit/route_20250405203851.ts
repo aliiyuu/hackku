@@ -3,8 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const age = formData.get('age') as string | null;
-  const gender = formData.get('gender') as string | null;
-  const genderIndentity = formData.get('genderIdentity') as string | null;
   const weight = formData.get('weight') as string | null;
   const height = formData.get('height') as string | null;
   const medicalConditions = formData.get('medicalConditions') as string | null;
@@ -23,21 +21,15 @@ export async function POST(req: NextRequest) {
         const formData = new FormData();
         formData.append(
           "content",
-          `You are a preventative care assistant. Based on the patient’s information and their vaccination/medication history (attached), give concise, easy-to-read recommendations.
-        
-        Patient is ${age} years old, weighs ${weight} pounds, and is ${height} inches tall. Their assigned gender at birth is ${gender} and their gender identity is ${genderIndentity}. 
+          `You are a preventative care assistant. Based on the patient information and vaccination/medication history provided below, suggest any recommended changes, follow-up screenings, vaccines, or check-ups this patient may need.
+          
+        Patient is ${age} years old, weighs ${weight} kg, and is ${height} inches tall. 
         They have the following medical conditions: ${medicalConditions || "None listed"}.
         Their family history includes: ${familyHistory || "None listed"}.
         
-        Your task:
-        - Give no more than **3 bullet points** for each category.
-        - Use simple language and keep each bullet **short and actionable**.
-        - Categories to include (if relevant): "Lifestyle Tips", "Vaccines to Get", "Screenings to Schedule"
-        - Avoid long explanations or detailed medical advice.
-        - Keep it friendly and supportive.
-        - Do not add any bolding since the website will not show this, just make new lines for each category
-        - also recommend hollistic care rituals such as meditation or spending time with family and friends 
-        `
+        Use this information to recommend some easy to implement healthy life style changes, or vaccinations recommended for the patient to get 
+        suggestions may include, 'go on a walk for 30 minutes every day' or 'include more protein into your diet' based on the patients medical history and age 
+        categorize your suggestions and make them easy to read. you do not need to give very specific or deeply medical suggestions, just things that are easy to do or vaccines/medications that are easy to get`
         );
         formData.append("file", file); // file from input[type=file]
 

@@ -3,8 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest) {
   const formData = await req.formData();
   const age = formData.get('age') as string | null;
-  const gender = formData.get('gender') as string | null;
-  const genderIndentity = formData.get('genderIdentity') as string | null;
   const weight = formData.get('weight') as string | null;
   const height = formData.get('height') as string | null;
   const medicalConditions = formData.get('medicalConditions') as string | null;
@@ -25,7 +23,7 @@ export async function POST(req: NextRequest) {
           "content",
           `You are a preventative care assistant. Based on the patient’s information and their vaccination/medication history (attached), give concise, easy-to-read recommendations.
         
-        Patient is ${age} years old, weighs ${weight} pounds, and is ${height} inches tall. Their assigned gender at birth is ${gender} and their gender identity is ${genderIndentity}. 
+        Patient is ${age} years old, weighs ${weight} kg, and is ${height} inches tall.
         They have the following medical conditions: ${medicalConditions || "None listed"}.
         Their family history includes: ${familyHistory || "None listed"}.
         
@@ -35,8 +33,6 @@ export async function POST(req: NextRequest) {
         - Categories to include (if relevant): "Lifestyle Tips", "Vaccines to Get", "Screenings to Schedule"
         - Avoid long explanations or detailed medical advice.
         - Keep it friendly and supportive.
-        - Do not add any bolding since the website will not show this, just make new lines for each category
-        - also recommend hollistic care rituals such as meditation or spending time with family and friends 
         `
         );
         formData.append("file", file); // file from input[type=file]

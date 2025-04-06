@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
           "content",
           `You are a preventative care assistant. Based on the patient’s information and their vaccination/medication history (attached), give concise, easy-to-read recommendations.
         
-        Patient is ${age} years old, weighs ${weight} pounds, and is ${height} inches tall. Their assigned gender at birth is ${gender} and their gender identity is ${genderIndentity}. 
+        Patient is ${age} years old, weighs ${weight} kg, and is ${height} inches tall. Their assigned gender at birth is ${gender} and their gender identity is ${genderIndentity}. 
         They have the following medical conditions: ${medicalConditions || "None listed"}.
         Their family history includes: ${familyHistory || "None listed"}.
         
@@ -36,7 +36,6 @@ export async function POST(req: NextRequest) {
         - Avoid long explanations or detailed medical advice.
         - Keep it friendly and supportive.
         - Do not add any bolding since the website will not show this, just make new lines for each category
-        - also recommend hollistic care rituals such as meditation or spending time with family and friends 
         `
         );
         formData.append("file", file); // file from input[type=file]

@@ -36,7 +36,6 @@ export async function POST(req: NextRequest) {
         - Avoid long explanations or detailed medical advice.
         - Keep it friendly and supportive.
         - Do not add any bolding since the website will not show this, just make new lines for each category
-        - also recommend hollistic care rituals such as meditation or spending time with family and friends 
         `
         );
         formData.append("file", file); // file from input[type=file]

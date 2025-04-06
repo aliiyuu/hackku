@@ -1,25 +1,5 @@
 "use client";
 
-const formatRecommendations = (rawText: string) => {
-  const sections = rawText.split(/\n(?=[A-Z][^\n]*\n\*)/g); // Splits on section titles followed by bullets
-
-  return sections.map((section, index) => {
-    const [titleLine, ...bodyLines] = section.trim().split("\n");
-    const bullets = bodyLines.filter((line) => line.startsWith("*")).map((item) => item.replace("* ", ""));
-    
-    return (
-      <div key={index} className="mb-4">
-        <h4 className="text-lg font-semibold mb-1">{titleLine}</h4>
-        <ul className="list-disc list-inside space-y-1 text-sm">
-          {bullets.map((item, idx) => (
-            <li key={idx}>{item}</li>
-          ))}
-        </ul>
-      </div>
-    );
-  });
-};
-
 import React, { useEffect, useState } from "react";
 import Select from "@/components/ClientSelect";
 import { Card, CardContent } from "@/components/ui/card";
@@ -246,12 +226,7 @@ export default function SurveyForm() {
       
         <div className="mt-6">
         {(recommendations != null ? <h3 className="text-xl font-semibold">Recommendations</h3> : <h3 className="text-xl font-semibold"></h3>)}
-        {recommendations && (
-  <div className="mt-6">
-    <h3 className="text-xl font-semibold mb-2">Recommendations</h3>
-    {formatRecommendations(recommendations)}
-  </div>
-)}
+          <p>{recommendations}</p>
         </div>
   
     </div>

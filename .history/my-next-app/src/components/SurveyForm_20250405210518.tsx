@@ -1,25 +1,5 @@
 "use client";
 
-const formatRecommendations = (rawText: string) => {
-  const sections = rawText.split(/\n(?=[A-Z][^\n]*\n\*)/g); // Splits on section titles followed by bullets
-
-  return sections.map((section, index) => {
-    const [titleLine, ...bodyLines] = section.trim().split("\n");
-    const bullets = bodyLines.filter((line) => line.startsWith("*")).map((item) => item.replace("* ", ""));
-    
-    return (
-      <div key={index} className="mb-4">
-        <h4 className="text-lg font-semibold mb-1">{titleLine}</h4>
-        <ul className="list-disc list-inside space-y-1 text-sm">
-          {bullets.map((item, idx) => (
-            <li key={idx}>{item}</li>
-          ))}
-        </ul>
-      </div>
-    );
-  });
-};
-
 import React, { useEffect, useState } from "react";
 import Select from "@/components/ClientSelect";
 import { Card, CardContent } from "@/components/ui/card";
@@ -55,7 +35,7 @@ const genderOptions = [
 interface Data {
   age: number;
   gender: string;
-  genderIdentity: string;
+  genderIndentity: string;
   weight: number;
   height: number;
   medicalConditions: { value: string; label: string }[];
@@ -67,7 +47,7 @@ export default function SurveyForm() {
   const [formData, setFormData] = useState<Data>({
     age: -1,
     gender: "",
-    genderIdentity: "",
+    genderIndentity: "",
     weight: -1,
     height: -1,
     medicalConditions: [],
@@ -108,7 +88,7 @@ export default function SurveyForm() {
     const submittedForm = new FormData();
     submittedForm.append('age', String(formData.age));
     submittedForm.append('gender', String(formData.gender));
-    submittedForm.append('genderIdentity', String(formData.genderIdentity));
+    submittedForm.append('genderIndentity', String(formData.genderIndentity));
     submittedForm.append('weight', String(formData.weight));
     submittedForm.append('height', String(formData.height));
     submittedForm.append('medicalConditions', JSON.stringify(formData.medicalConditions));
@@ -169,9 +149,9 @@ export default function SurveyForm() {
               <Input
                 name="genderIdentity"
                 placeholder="please specify your gender identity"
-                value={formData.genderIdentity}
+                value={formData.height > -1 ? String(formData.height) : ""}
                 onChange={handleChange}
-        
+                required
               />
             </div>
 
@@ -246,12 +226,7 @@ export default function SurveyForm() {
       
         <div className="mt-6">
         {(recommendations != null ? <h3 className="text-xl font-semibold">Recommendations</h3> : <h3 className="text-xl font-semibold"></h3>)}
-        {recommendations && (
-  <div className="mt-6">
-    <h3 className="text-xl font-semibold mb-2">Recommendations</h3>
-    {formatRecommendations(recommendations)}
-  </div>
-)}
+          <p>{recommendations}</p>
         </div>
   
     </div>

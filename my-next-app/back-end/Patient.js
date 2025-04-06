@@ -17,10 +17,10 @@ const patientSchema = new Schema({
     gender: { type: String, default: ""},
     weight: { type: Number, default: ""},
     height: { type: Number, default: ""},
-    conditions: { type: [String], default: ""},
+    conditions: { type: [String], default: []},
     history: { type: String, default: ""},
     medications: { type: String, default: ""},
-    opt_in: { type: Boolean, default: false},
+    opt_in: { type: Boolean},
     location: { type: String, default: ""}
 })
 

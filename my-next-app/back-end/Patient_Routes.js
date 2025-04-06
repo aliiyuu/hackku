@@ -27,7 +27,7 @@ router.route("/patients").post(async (req, res) => {
         .catch((err) => {
         res.status(400).send({
             status: false,
-            message: err.message,
+            message: err.message
         });
     });
 });
@@ -38,25 +38,15 @@ router.route("/patients").get(async (req, res) => {
     res.status(200).send(collection);
 });
 
-// get a specific patient by email
-router.route("/patients/:id").get(async (req, res) => {
-    let patient = await patientDB.findOne({ _id: req.params.id });
-  
-    if (patient != null) res.status(200).send(patient); 
-    else
-      res.status(400).send({
-        // ERROR HANDLING
-        status: false,
-        message: "Error retrieving patient",
-      });
-});
-
 // find all patients (including given patient) that opted in, are in the same location as request, share at least 1 condition, and are in the same 10 year age range
 // required parameter: a patient's email address
 router.route("/patients/:id/group").get(async (req, res) => {
     let patient;
     try {
         patient = await patientDB.findById(req.params.id);
+        if (!patient) {
+            return res.status(404).json({ error: "Patient not found" });
+          }
     } catch (err) {
         res.status(500).json({ error: 'Server error' });
     }
@@ -73,3 +63,18 @@ router.route("/patients/:id/group").get(async (req, res) => {
     res.status(200).send(group);
     // error if group is just the patient 
 })
+
+// get a specific patient by email
+router.route("/patients/:id").get(async (req, res) => {
+    let patient = await patientDB.findOne({ _id: req.params.id });
+  
+    if (patient != null) res.status(200).send(patient); 
+    else
+      res.status(400).send({
+        // ERROR HANDLING
+        status: false,
+        message: "Error retrieving patient",
+      });
+});
+
+module.exports = router;

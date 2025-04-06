@@ -3,7 +3,7 @@ const router = express.Router();
 const patientDB = require("./Patient");
 
 // create new user and store in db
-router.route("/patients").post(async (requestAnimationFrame, res) => {
+router.route("/patients").post(async (req, res) => {
     patientDB
         .create({
             _id:  req.body._id,
@@ -35,14 +35,14 @@ router.route("/patients").post(async (requestAnimationFrame, res) => {
 // get all patients
 router.route("/patients").get(async (req, res) => {
     let collection = await patientDB.find({}); 
-    res.send(collection).status(200);
+    res.status(200).send(collection);
 });
 
 // get a specific patient by email
 router.route("/patients/:id").get(async (req, res) => {
     let patient = await patientDB.findOne({ _id: req.params.id });
   
-    if (patient != null) res.send(patient).status(200); 
+    if (patient != null) res.status(200).send(patient); 
     else
       res.status(400).send({
         // ERROR HANDLING
@@ -51,17 +51,25 @@ router.route("/patients/:id").get(async (req, res) => {
       });
 });
 
-// find all patients that opted in, are in the same location as request, share at least 1 condition, and are in the same 10 year age range
-// required parameters: location of user, medical conditions list as a string array, age 
-router.route("/patients").get(async (req, res) => {
-    patientDB.find([
+// find all patients (including given patient) that opted in, are in the same location as request, share at least 1 condition, and are in the same 10 year age range
+// required parameter: a patient's email address
+router.route("/patients/:id/group").get(async (req, res) => {
+    let patient;
+    try {
+        patient = await patientDB.findById(req.params.id);
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+
+    let group = await patientDB.find({
         $and: [
             { opt_in: true },
-            { location: req.params.location },
-            // CONDITION MATCHING
-            { $and: [
-                age: $lt: (req.params.age + 5)  
-            ] }
+            { location: patient.location },
+            { conditions : { $in: patient.conditions }},
+            { age: { $lte: patient.age + 5, $gte: patient.age - 5 }}
         ]
-    ])
+    });
+
+    res.status(200).send(group);
+    // error if group is just the patient 
 })

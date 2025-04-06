@@ -110,15 +110,89 @@ export default function SurveyForm() {
     setFormData((prev) => ({ ...prev, medicalConditions: selected }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) =>{
+  //const handleGrouping = async (e: React.FormEvent<HTMLFormElement>) => {
+    //e.preventDefault();
+  
+    // const dataToSubmit = {
+    //   ...formData,
+    //   medicalConditions: formData.medicalConditions.map((cond) => cond.label),
+    //   file: formData.file?.name || "No file uploaded",
+    // };
+    //setSubmittedData(dataToSubmit);
+  
+    // FormData to send to backend
+    // const submittedForm = new FormData();
+    // submittedForm.append('email', String(formData.email));
+    // submittedForm.append('age', String(formData.age));
+    // submittedForm.append('gender', String(formData.gender));
+    // submittedForm.append('genderIdentity', String(formData.genderIdentity));
+    // submittedForm.append('weight', String(formData.weight));
+    // submittedForm.append('height', String(formData.height));
+    // submittedForm.append('medicalConditions', JSON.stringify(formData.medicalConditions));
+    // submittedForm.append('familyHistory', formData.familyHistory);
+    // submittedForm.append('medication', formData.medication); 
+    // submittedForm.append('file', formData.file as Blob);
+    // submittedForm.append('willingToShare', String(consent)); 
+  
+    //try {
+      // // First API call to current API
+      // const response1 = await fetch('http://localhost:3000/submit', {
+      //   method: 'POST',
+      //   body: submittedForm
+      // });
+  
+      // if (!response1.ok) {
+      //   alert('Something went wrong with the API');
+      //   return;
+      // }
+      
+      // const jsonResponse1 = await response1.json();
+      // console.log("API response:", jsonResponse1);
+      
+      // // ✅ Set the actual recommendation text from response
+      // setRecommendations(jsonResponse1.message || "No recommendations returned.");
+  
+      // Second API call to the backend MongoDB router (example URL)
+      const response = await fetch('http://localhost:3000/api/patients/:id/group', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          conditions: formData.medicalConditions
+          // Add any other data that is required for the MongoDB API here
+        })
+      });
+  
+      if (!response.ok) {
+        alert('Something went wrong with the MongoDB API');
+        return;
+      }
+  
+      const jsonResponse2 = await response2.json();
+      console.log("MongoDB API response:", jsonResponse2);
+      
+      // You can process the MongoDB response further here if needed
+      // For example, if you need to display some result from the MongoDB API
+  
+    } catch (error) {
+      console.error("Error with the API calls:", error);
+      alert('There was an error processing the form');
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+  
     const dataToSubmit = {
       ...formData,
       medicalConditions: formData.medicalConditions.map((cond) => cond.label),
       file: formData.file?.name || "No file uploaded",
     };
     setSubmittedData(dataToSubmit);
-   // formData.append('file', formData.file);
+  
+    // FormData to send to backend
     const submittedForm = new FormData();
     submittedForm.append('email', String(formData.email));
     submittedForm.append('age', String(formData.age));
@@ -131,25 +205,55 @@ export default function SurveyForm() {
     submittedForm.append('medication', formData.medication); 
     submittedForm.append('file', formData.file as Blob);
     submittedForm.append('willingToShare', String(consent)); 
-
-    const response = await fetch('http://localhost:3000/submit', 
-    {
+  
+    try {
+      // First API call to current API
+      const response1 = await fetch('http://localhost:3000/submit', {
         method: 'POST',
         body: submittedForm
-    });
-
-    if (!response.ok) {
-      alert('Something went wrong with the API');
-      return;
+      });
+  
+      if (!response1.ok) {
+        alert('Something went wrong with the API');
+        return;
+      }
+      
+      const jsonResponse1 = await response1.json();
+      console.log("API response:", jsonResponse1);
+      
+      // ✅ Set the actual recommendation text from response
+      setRecommendations(jsonResponse1.message || "No recommendations returned.");
+  
+      // Second API call to the backend MongoDB router (example URL)
+      const response2 = await fetch('http://localhost:3000/api/mongo-router', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          conditions: formData.medicalConditions
+          // Add any other data that is required for the MongoDB API here
+        })
+      });
+  
+      if (!response2.ok) {
+        alert('Something went wrong with the MongoDB API');
+        return;
+      }
+  
+      const jsonResponse2 = await response2.json();
+      console.log("MongoDB API response:", jsonResponse2);
+      
+      // You can process the MongoDB response further here if needed
+      // For example, if you need to display some result from the MongoDB API
+  
+    } catch (error) {
+      console.error("Error with the API calls:", error);
+      alert('There was an error processing the form');
     }
-    
-    const jsonResponse = await response.json();
-    console.log("API response:", jsonResponse);
-    
-    // ✅ Set the actual recommendation text from response
-    setRecommendations(jsonResponse.message || "No recommendations returned.");
   };
-
+  
   const surveyBoxRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
   const [position, setPosition] = useState({ top: '10%', left: '10%' });
@@ -340,13 +444,18 @@ export default function SurveyForm() {
             )*/} 
           </CardContent>
           <div className="p-6">
-            {recommendations != null && <h3 className="text-xl font-semibold">Recommendations</h3>}
+            {recommendations && <h3 className="text-xl font-semibold">Recommendations</h3>}
             {recommendations && (
               <div>
                 {formatRecommendations(recommendations)}
               </div>
             )}
           </div>
+          {recommendations && (
+              <div className="p-6">    
+                <Button type="submit">Let's form a group!</Button>
+              </div>
+            )}
         </Card>
       </div>
     </div>

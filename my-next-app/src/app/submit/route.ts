@@ -8,6 +8,7 @@ export async function POST(req: NextRequest) {
   const weight = formData.get('weight') as string | null;
   const height = formData.get('height') as string | null;
   const medicalConditions = formData.get('medicalConditions') as string | null;
+  const medication = formData.get('medication') as string | null;
   const familyHistory = formData.get('familyHistory') as string | null;
   const file = formData.get('file') as File | null;
 
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
         
         Patient is ${age} years old, weighs ${weight} pounds, and is ${height} inches tall. Their assigned gender at birth is ${gender} and their gender identity is ${genderIndentity}. 
         They have the following medical conditions: ${medicalConditions || "None listed"}.
-        Their family history includes: ${familyHistory || "None listed"}.
+        Their family history includes: ${familyHistory || "None listed"}. They are currently taking the following medications in the respective doses: ${medication || "None listed"}
         
         Your task:
         - Give no more than **3 bullet points** for each category.

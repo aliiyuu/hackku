@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Select from "@/components/ClientSelect";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,31 +28,37 @@ const medicalConditionsOptions = [
   { value: "sleep-apnea", label: "Sleep Apnea" },
 ];
 
-interface FormData {
-  age: string;
-  weight: string;
-  height: string;
+interface Data {
+  age: number;
+  weight: number;
+  height: number;
   medicalConditions: { value: string; label: string }[];
   familyHistory: string;
-  vaccinationFile: File | null;
+  file: File | null;
 }
 
 export default function SurveyForm() {
-  const [formData, setFormData] = useState<FormData>({
-    age: "",
-    weight: "",
-    height: "",
+  const [formData, setFormData] = useState<Data>({
+    age: -1,
+    weight: -1,
+    height: -1,
     medicalConditions: [],
     familyHistory: "",
-    vaccinationFile: null,
+    file: null,
   });
+
+  const [recommendations, setRecommendations] = useState<string | null>(null);
 
   const [submittedData, setSubmittedData] = useState<Record<string, any> | null>(null);
 
+  useEffect(() => {
+    console.log("Updated recommendations:", recommendations);
+  }, [recommendations]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, files } = e.target as HTMLInputElement;
-    if (name === "vaccinationFile" && files) {
-      setFormData((prev) => ({ ...prev, vaccinationFile: files[0] }));
+    if (name === "file" && files) {
+      setFormData((prev) => ({ ...prev, file: files[0] }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -62,14 +68,39 @@ export default function SurveyForm() {
     setFormData((prev) => ({ ...prev, medicalConditions: selected }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) =>{
     e.preventDefault();
     const dataToSubmit = {
       ...formData,
       medicalConditions: formData.medicalConditions.map((cond) => cond.label),
-      vaccinationFile: formData.vaccinationFile?.name || "No file uploaded",
+      file: formData.file?.name || "No file uploaded",
     };
     setSubmittedData(dataToSubmit);
+   // formData.append('file', formData.file);
+    const submittedForm = new FormData();
+    submittedForm.append('age', String(formData.age));
+    submittedForm.append('weight', String(formData.weight));
+    submittedForm.append('height', String(formData.height));
+    submittedForm.append('medicalConditions', JSON.stringify(formData.medicalConditions));
+    submittedForm.append('familyHistory', formData.familyHistory);
+    submittedForm.append('file', formData.file as Blob);
+
+    const response = await fetch('http://localhost:3000/submit', 
+    {
+        method: 'POST',
+        body: submittedForm
+    });
+
+    if (!response.ok) {
+      alert('Something went wrong with the API');
+      return;
+    }
+    
+    const jsonResponse = await response.json();
+    console.log("API response:", jsonResponse);
+    
+    // ✅ Set the actual recommendation text from response
+    setRecommendations(jsonResponse.message || "No recommendations returned.");
   };
 
   return (
@@ -81,21 +112,21 @@ export default function SurveyForm() {
             <Input
               name="age"
               placeholder="Age"
-              value={formData.age}
+              value={formData.age > -1 ? String(formData.age) : ""}
               onChange={handleChange}
               required
             />
             <Input
               name="weight"
-              placeholder="Weight (kg or lbs)"
-              value={formData.weight}
+              placeholder="Weight (kg)"
+              value={formData.weight > -1 ? String(formData.weight) : ""}
               onChange={handleChange}
               required
             />
             <Input
               name="height"
-              placeholder="Height (cm or ft/in)"
-              value={formData.height}
+              placeholder="Height (cm)"
+              value={formData.height > -1 ? String(formData.height) : ""}
               onChange={handleChange}
               required
             />
@@ -117,10 +148,10 @@ export default function SurveyForm() {
               onChange={handleChange}
             />
             <div>
-              <label className="block mb-1 font-medium">Vaccination History (PDF)</label>
+              <label className="block mb-1 font-medium">Vaccination/Medication History (PDF)</label>
               <Input
                 type="file"
-                name="vaccinationFile"
+                name="file"
                 accept="application/pdf"
                 onChange={handleChange}
               />
@@ -135,9 +166,15 @@ export default function SurveyForm() {
                 {JSON.stringify(submittedData, null, 2)}
               </pre>
             </div>
-          )}
+          )} 
         </CardContent>
       </Card>
+      
+        <div className="mt-6">
+        {(recommendations != null ? <h3 className="text-xl font-semibold">Recommendations</h3> : <h3 className="text-xl font-semibold"></h3>)}
+          <p>{recommendations}</p>
+        </div>
+  
     </div>
   );
 }

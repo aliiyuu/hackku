@@ -60,7 +60,6 @@ interface Data {
   height: number;
   medicalConditions: { value: string; label: string }[];
   familyHistory: string;
-  medication: string;
   file: File | null;
 }
 
@@ -73,15 +72,12 @@ export default function SurveyForm() {
     height: -1,
     medicalConditions: [],
     familyHistory: "",
-    medication: "",
     file: null,
   });
 
   const [recommendations, setRecommendations] = useState<string | null>(null);
 
   const [submittedData, setSubmittedData] = useState<Record<string, any> | null>(null);
-
-  const [consent, setConsent] = useState(false); 
 
   useEffect(() => {
     console.log("Updated recommendations:", recommendations);
@@ -117,9 +113,7 @@ export default function SurveyForm() {
     submittedForm.append('height', String(formData.height));
     submittedForm.append('medicalConditions', JSON.stringify(formData.medicalConditions));
     submittedForm.append('familyHistory', formData.familyHistory);
-    submittedForm.append('medication', formData.medication); 
     submittedForm.append('file', formData.file as Blob);
-    submittedForm.append('willingToShare', String(consent)); 
 
     const response = await fetch('http://localhost:3000/submit', 
     {
@@ -222,25 +216,13 @@ export default function SurveyForm() {
 
               <Textarea
                 name="familyHistory"
-                placeholder="Further specify conditions and describe any relevant family medical history"
+                placeholder="Further specity conditions and describe any relevant family medical history"
                 value={formData.familyHistory}
                 onChange={handleChange}
               />
             </div>
-
             <div>
-            <label className="block mb-1 font-medium">Medications</label>
-
-              <Textarea
-                name="medication"
-                placeholder="Please list any medications you are currently taking and their dosages"
-                value={formData.medication}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <label className="block mb-1 font-medium">Vaccination History (PDF)</label>
+              <label className="block mb-1 font-medium">Vaccination/Medication History (PDF)</label>
               <Input
                 type="file"
                 name="file"
@@ -248,20 +230,6 @@ export default function SurveyForm() {
                 onChange={handleChange}
               />
             </div>
-            <div>
-            <label className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                name="consent"
-                checked={consent}
-                onChange={(e) => setConsent(e.target.checked)}
-                className="h-4 w-4"
-              />
-              <span className="text-sm">
-                I consent to my data being saved and shared with others to be connected to aid communities.
-              </span>
-            </label>
-           </div>
             <Button type="submit">Submit</Button>
           </form>
 
@@ -279,10 +247,10 @@ export default function SurveyForm() {
         <div className="mt-6">
         {(recommendations != null ? <h3 className="text-xl font-semibold">Recommendations</h3> : <h3 className="text-xl font-semibold"></h3>)}
         {recommendations && (
-        <div className="mt-6">
-        <h3 className="text-xl font-semibold mb-2">Recommendations</h3>
-        {formatRecommendations(recommendations)}
-        </div>
+  <div className="mt-6">
+    <h3 className="text-xl font-semibold mb-2">Recommendations</h3>
+    {formatRecommendations(recommendations)}
+  </div>
 )}
         </div>
   

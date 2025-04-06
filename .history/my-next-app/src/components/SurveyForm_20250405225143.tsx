@@ -117,7 +117,7 @@ export default function SurveyForm() {
     submittedForm.append('height', String(formData.height));
     submittedForm.append('medicalConditions', JSON.stringify(formData.medicalConditions));
     submittedForm.append('familyHistory', formData.familyHistory);
-    submittedForm.append('medication', formData.medication); 
+    submittedForm.append('medication', String(formData.medication)); 
     submittedForm.append('file', formData.file as Blob);
     submittedForm.append('willingToShare', String(consent)); 
 
@@ -222,14 +222,14 @@ export default function SurveyForm() {
 
               <Textarea
                 name="familyHistory"
-                placeholder="Further specify conditions and describe any relevant family medical history"
+                placeholder="Further specity conditions and describe any relevant family medical history"
                 value={formData.familyHistory}
                 onChange={handleChange}
               />
             </div>
 
             <div>
-            <label className="block mb-1 font-medium">Medications</label>
+            <label className="block mb-1 font-medium">Medication History</label>
 
               <Textarea
                 name="medication"
@@ -240,7 +240,7 @@ export default function SurveyForm() {
             </div>
 
             <div>
-              <label className="block mb-1 font-medium">Vaccination History (PDF)</label>
+              <label className="block mb-1 font-medium">Vaccination/Medication History (PDF)</label>
               <Input
                 type="file"
                 name="file"

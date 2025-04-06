@@ -35,7 +35,6 @@ export async function POST(req: NextRequest) {
         - Use simple language and keep each bullet **short and actionable**.
         - Categories to include (if relevant): "Lifestyle Tips", "Vaccines to Get", "Screenings to Schedule"
         - Avoid long explanations or detailed medical advice.
-        - Give actionable advice involving a specific timeframe or number of times weekly/monthly/etc.
         - Keep it friendly and supportive.
         - Do not add any bolding since the website will not show this, just make new lines for each category
         - also recommend hollistic care rituals such as meditation or spending time with family and friends 

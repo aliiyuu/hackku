@@ -12,15 +12,16 @@ const patientSchema = new Schema({
             message: props => " This is not a valid email."
         }
     },
-    age: Number,
-    sex: String,
-    gender: String,
-    weight: Number,
-    height: Number,
-    conditions: [String],
-    history: String,
-    medications: String,
-    opt_in: Boolean
+    age: { type: Number, default: ""},
+    sex: { type: String, default: ""},
+    gender: { type: String, default: ""},
+    weight: { type: Number, default: ""},
+    height: { type: Number, default: ""},
+    conditions: { type: [String], default: ""},
+    history: { type: String, default: ""},
+    medications: { type: String, default: ""},
+    opt_in: { type: Boolean, default: false},
+    location: { type: String, default: ""}
 })
 
 module.exports = mongoose.model('Patient', patientSchema);

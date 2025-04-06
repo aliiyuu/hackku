@@ -69,7 +69,7 @@ interface Data {
   medicalConditions: { value: string; label: string }[];
   familyHistory: string;
   medication: string;
-  file: File | null;
+  //consent: boolean
 }
 
 export default function SurveyForm() {
@@ -84,14 +84,15 @@ export default function SurveyForm() {
     medicalConditions: [],
     familyHistory: "",
     medication: "",
-    file: null,
+   // consent: false,
   });
 
   const [recommendations, setRecommendations] = useState<string | null>(null);
+  const [groupRecs, setGroupRecs] = useState<string | null>(null);
 
   const [submittedData, setSubmittedData] = useState<Record<string, any> | null>(null);
 
-  const [consent, setConsent] = useState(false); 
+  const [consent, setConsent] = useState(false);
 
   useEffect(() => {
     console.log("Updated recommendations:", recommendations);
@@ -110,85 +111,13 @@ export default function SurveyForm() {
     setFormData((prev) => ({ ...prev, medicalConditions: selected }));
   };
 
-  //const handleGrouping = async (e: React.FormEvent<HTMLFormElement>) => {
-    //e.preventDefault();
-  
-    // const dataToSubmit = {
-    //   ...formData,
-    //   medicalConditions: formData.medicalConditions.map((cond) => cond.label),
-    //   file: formData.file?.name || "No file uploaded",
-    // };
-    //setSubmittedData(dataToSubmit);
-  
-    // FormData to send to backend
-    // const submittedForm = new FormData();
-    // submittedForm.append('email', String(formData.email));
-    // submittedForm.append('age', String(formData.age));
-    // submittedForm.append('gender', String(formData.gender));
-    // submittedForm.append('genderIdentity', String(formData.genderIdentity));
-    // submittedForm.append('weight', String(formData.weight));
-    // submittedForm.append('height', String(formData.height));
-    // submittedForm.append('medicalConditions', JSON.stringify(formData.medicalConditions));
-    // submittedForm.append('familyHistory', formData.familyHistory);
-    // submittedForm.append('medication', formData.medication); 
-    // submittedForm.append('file', formData.file as Blob);
-    // submittedForm.append('willingToShare', String(consent)); 
-  
-    //try {
-      // // First API call to current API
-      // const response1 = await fetch('http://localhost:3000/submit', {
-      //   method: 'POST',
-      //   body: submittedForm
-      // });
-  
-      // if (!response1.ok) {
-      //   alert('Something went wrong with the API');
-      //   return;
-      // }
-      
-      // const jsonResponse1 = await response1.json();
-      // console.log("API response:", jsonResponse1);
-      
-      // // ✅ Set the actual recommendation text from response
-      // setRecommendations(jsonResponse1.message || "No recommendations returned.");
-  
-      // Second API call to the backend MongoDB router (example URL)
-      const response = await fetch('http://localhost:3000/api/patients/:id/group', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          conditions: formData.medicalConditions
-          // Add any other data that is required for the MongoDB API here
-        })
-      });
-  
-      if (!response.ok) {
-        alert('Something went wrong with the MongoDB API');
-        return;
-      }
-  
-      const jsonResponse2 = await response2.json();
-      console.log("MongoDB API response:", jsonResponse2);
-      
-      // You can process the MongoDB response further here if needed
-      // For example, if you need to display some result from the MongoDB API
-  
-    } catch (error) {
-      console.error("Error with the API calls:", error);
-      alert('There was an error processing the form');
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
   
     const dataToSubmit = {
       ...formData,
       medicalConditions: formData.medicalConditions.map((cond) => cond.label),
-      file: formData.file?.name || "No file uploaded",
+      
     };
     setSubmittedData(dataToSubmit);
   
@@ -203,38 +132,48 @@ export default function SurveyForm() {
     submittedForm.append('medicalConditions', JSON.stringify(formData.medicalConditions));
     submittedForm.append('familyHistory', formData.familyHistory);
     submittedForm.append('medication', formData.medication); 
-    submittedForm.append('file', formData.file as Blob);
-    submittedForm.append('willingToShare', String(consent)); 
-  
-    try {
+    submittedForm.append('consent', String(consent)); 
+    submittedForm.append('location', String(formData.location));
+
+
+    try{
       // First API call to current API
-      const response1 = await fetch('http://localhost:3000/submit', {
-        method: 'POST',
-        body: submittedForm
-      });
-  
-      if (!response1.ok) {
-        alert('Something went wrong with the API');
-        return;
-      }
+    const response1 = await fetch('http://localhost:3000/submit', {
+      method: 'POST',
+      body: submittedForm
+    });
+
+    if (!response1.ok) {
       
-      const jsonResponse1 = await response1.json();
-      console.log("API response:", jsonResponse1);
-      
-      // ✅ Set the actual recommendation text from response
-      setRecommendations(jsonResponse1.message || "No recommendations returned.");
-  
-      // Second API call to the backend MongoDB router (example URL)
-      const response2 = await fetch('http://localhost:3000/api/mongo-router', {
+      console.error(`Error ${response1.status}: ${response1.statusText}`);
+      alert('Something went wrong with the Gemini API');
+      return;
+    }
+    
+    const jsonResponse1 = await response1.json();
+    console.log("API response:", jsonResponse1);
+    
+    // ✅ Set the actual recommendation text from response
+    setRecommendations(jsonResponse1.message || "No recommendations returned.");
+    // Second API call to the backend MongoDB router (example URL)
+      const response2 = await fetch('http://localhost:5038/patients', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email: formData.email,
-          conditions: formData.medicalConditions
-          // Add any other data that is required for the MongoDB API here
-        })
+          _id: formData.email,
+          age: formData.age,
+          sex: formData.gender,
+          gender: formData.genderIdentity,
+          weight: formData.weight,
+          height: formData.height,
+          conditions: formData.medicalConditions,
+          history: formData.familyHistory,
+          medications: formData.medication,
+          opt_in: consent,
+          location: formData.location
+        }),
       });
   
       if (!response2.ok) {
@@ -244,15 +183,62 @@ export default function SurveyForm() {
   
       const jsonResponse2 = await response2.json();
       console.log("MongoDB API response:", jsonResponse2);
-      
-      // You can process the MongoDB response further here if needed
-      // For example, if you need to display some result from the MongoDB API
-  
     } catch (error) {
-      console.error("Error with the API calls:", error);
+      console.error('Fetch error:', error);
       alert('There was an error processing the form');
     }
   };
+
+  const handleGroupSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+  
+    const dataToSubmit = {
+      ...formData,
+      medicalConditions: formData.medicalConditions.map((cond) => cond.label),
+      
+    };
+    setSubmittedData(dataToSubmit);
+  
+    // FormData to send to backend
+    const submittedForm = new FormData();
+    submittedForm.append('email', String(formData.email));
+    submittedForm.append('age', String(formData.age));
+    submittedForm.append('gender', String(formData.gender));
+    submittedForm.append('genderIdentity', String(formData.genderIdentity));
+    submittedForm.append('weight', String(formData.weight));
+    submittedForm.append('height', String(formData.height));
+    submittedForm.append('medicalConditions', JSON.stringify(formData.medicalConditions));
+    submittedForm.append('familyHistory', formData.familyHistory);
+    submittedForm.append('medication', formData.medication); 
+    submittedForm.append('consent', String(consent)); 
+    submittedForm.append('location', String(formData.location));
+
+
+    try{
+      // First API call to current API
+    const response1 = await fetch('http://localhost:3000/groups', {
+      method: 'POST',
+      body: submittedForm
+    });
+
+    if (!response1.ok) {
+      
+      console.error(`Error ${response1.status}: ${response1.statusText}`);
+      alert('Something went wrong with the Gemini API');
+      return;
+    }
+    
+    const jsonResponse1 = await response1.json();
+    console.log("API response:", jsonResponse1);
+    
+    // ✅ Set the actual recommendation text from response
+    setGroupRecs(jsonResponse1.message || "No recommendations returned.");
+    } catch (error) {
+      console.error('Fetch error:', error);
+      alert('There was an error processing the form');
+    }
+  };
+  
   
   const surveyBoxRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -291,7 +277,7 @@ export default function SurveyForm() {
           dragging ? 'cursor-grabbing' : 'cursor-move'
         }`}
         style={{ top: position.top, left: position.left }}
-        onMouseDown={handleMouseDown}
+        // onMouseDown={handleMouseDown}
       >
         <Card>
           <CardContent className="space-y-4 pt-6">
@@ -408,15 +394,7 @@ export default function SurveyForm() {
                 />
               </div>
 
-              <div>
-                <label className="block mb-1 font-medium">Vaccination History (PDF)</label>
-                <Input
-                  type="file"
-                  name="file"
-                  accept="application/pdf"
-                  onChange={handleChange}
-                />
-              </div>
+              
               <div>
                 <label className="flex items-center space-x-2">
                   <input
@@ -453,9 +431,25 @@ export default function SurveyForm() {
           </div>
           {recommendations && (
               <div className="p-6">    
-                <Button type="submit">Let's form a group!</Button>
+                 <Button
+                  type="submit"  // Keep 'submit' type to submit the form
+                  onClick={(e) => {
+                    e.preventDefault();  // Prevent the default form submission
+                    handleGroupSubmit(e);  // Call the custom onClick handler
+                  }}
+                >
+                  Let's form a group!
+                </Button>
               </div>
             )}
+             <div className="p-6">
+            {groupRecs && <h3 className="text-xl font-semibold"></h3>}
+            {groupRecs && (
+              <div>
+                {formatRecommendations(groupRecs)}
+              </div>
+            )}
+          </div>
         </Card>
       </div>
     </div>

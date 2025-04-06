@@ -52,8 +52,15 @@ const genderOptions = [
   { value: "male", label: " Male" }
 ];
 
+const locationOptions = [
+  { value: "new-york", label: "New York, NY" },
+  { value: "la", label: "Los Angeles, LA" },
+  { value: "lawrence", label: "Lawrence, KS" }
+];
+
 interface Data {
   email: string,
+  location: string,
   age: number;
   gender: string;
   genderIdentity: string;
@@ -68,6 +75,7 @@ interface Data {
 export default function SurveyForm() {
   const [formData, setFormData] = useState<Data>({
     email: "",
+    location: "",
     age: -1,
     gender: "",
     genderIdentity: "",
@@ -192,6 +200,19 @@ export default function SurveyForm() {
                   placeholder="enter email here"
                   onChange={handleChange}
                   required
+                />
+              </div>
+
+              <div>
+              <label className="block mb-1 font-medium">Location</label>
+              <Select
+                  name="location"
+                  options={locationOptions}
+                  value={locationOptions.find((opt) => opt.value === formData.location)}
+                  onChange={(selected: any) =>
+                    setFormData((prev) => ({ ...prev, location: selected.value }))
+                  }
+                  className="text-sm"
                 />
               </div>
 

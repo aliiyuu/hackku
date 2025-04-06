@@ -60,7 +60,6 @@ interface Data {
   height: number;
   medicalConditions: { value: string; label: string }[];
   familyHistory: string;
-  medication: string;
   file: File | null;
 }
 
@@ -73,7 +72,6 @@ export default function SurveyForm() {
     height: -1,
     medicalConditions: [],
     familyHistory: "",
-    medication: "",
     file: null,
   });
 
@@ -117,9 +115,7 @@ export default function SurveyForm() {
     submittedForm.append('height', String(formData.height));
     submittedForm.append('medicalConditions', JSON.stringify(formData.medicalConditions));
     submittedForm.append('familyHistory', formData.familyHistory);
-    submittedForm.append('medication', formData.medication); 
     submittedForm.append('file', formData.file as Blob);
-    submittedForm.append('willingToShare', String(consent)); 
 
     const response = await fetch('http://localhost:3000/submit', 
     {
@@ -222,25 +218,13 @@ export default function SurveyForm() {
 
               <Textarea
                 name="familyHistory"
-                placeholder="Further specify conditions and describe any relevant family medical history"
+                placeholder="Further specity conditions and describe any relevant family medical history"
                 value={formData.familyHistory}
                 onChange={handleChange}
               />
             </div>
-
             <div>
-            <label className="block mb-1 font-medium">Medications</label>
-
-              <Textarea
-                name="medication"
-                placeholder="Please list any medications you are currently taking and their dosages"
-                value={formData.medication}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <label className="block mb-1 font-medium">Vaccination History (PDF)</label>
+              <label className="block mb-1 font-medium">Vaccination/Medication History (PDF)</label>
               <Input
                 type="file"
                 name="file"
